@@ -1,3 +1,4 @@
+import json
 import os
 import socket
 
@@ -17,14 +18,30 @@ def file_read(file_path):
             yield data
 
 
+def file_info(fpath):
+    # file_name = fpath.split('/')[-1]
+    # file_size = os.path.getsize(fpath)
+    file_name = os.path.split(fpath)[1]
+    file_size = os.path.getsize(fpath)
+
+
+    return {
+        'file_name': file_name,
+        'file_size': file_size
+    }
+
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     try:
         s.connect((HOST, PORT))
         fileSize = os.path.getsize(FILE_PATH)
 
+        finfo = file_info(FILE_PATH)
         # 파일 크기 전송
-        print('전송 파일 크기', fileSize)
-        s.sendall(str(fileSize).encode())
+        print('전송 파일명', finfo.get('file_name'))
+        print('전송 파일 크기', finfo.get('file_size'))
+        msg = json.dumps(finfo)   # <--- 제이슨으로 만들어지는 자료에는 개행문자는 안들어간다.
+        s.sendall(msg.encode())
 
         # 준비 상태 수신
         isready = s.recv(1024).decode()

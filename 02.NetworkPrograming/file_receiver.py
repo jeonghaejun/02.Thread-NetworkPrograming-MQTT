@@ -1,3 +1,4 @@
+import json
 from _thread import *
 import socket
 
@@ -9,16 +10,23 @@ FILE_PATH = 'C:/Temp/received/data'
 def receive_thread(client_socket, addr):
     try:
         # 파일 크기 수신
-        size = client_socket.recv(1024)
-        size = int(size.decode())
-        print('수신할 파일 크기: ', size)
+        # size = client_socket.recv(1024)
+        # size = int(size.decode())
+        # print('수신할 파일 크기: ', size)
+
+        # json 문자열을 수신
+        finfo = client_socket.recv(1024).decode()
+        finfo = json.loads(finfo)
+        print(f"파일명: {finfo.get('file_name')}, 파일크기: {finfo.get('file_size')}")
+        size = finfo.get('file_size')
+        fpath = 'c:/temp/received/'+finfo.get('file_name')
 
         # 준비상태 전송
         client_socket.send('ready'.encode())
 
         # 파일 수신
         total_size = 0
-        with open(FILE_PATH, 'wb') as f:
+        with open(fpath, 'wb') as f:
             while True:
                 data = client_socket.recv(1024)
                 f.write(data)
