@@ -5,20 +5,22 @@ import time
 
 HOST = 'localhost'
 
-
 class Sensor(Thread):
-    def __init__(self, interval, range, topic):
+    def __init__(self, topic):
         super().__init__()
-        self.interval = interval
-        self.range = range
+        
         self.topic = topic
         self.client = mqtt.Client()
 
     def run(self):
         self.client.connect(HOST)
         while True:
-            time.sleep(self.interval)
-            value = random.uniform(*self.range)
+            time.sleep(1)
+            value = "on"
+            # 토픽발행
+            print(self.topic, value)
+            self.client.publish(self.topic, value)
+            value = "off"
             # 토픽발행
             print(self.topic, value)
             self.client.publish(self.topic, value)
@@ -26,7 +28,5 @@ class Sensor(Thread):
 
 
 if __name__ == "__main__":
-    temp1_sensor = Sensor(5, (3, 10), 'iot/user1/temp')
-    temp1_sensor.start()
-    temp2_sensor = Sensor(3, (3, 10), 'iot/user1/temp')
-    temp2_sensor.start()
+    temp_sensor = Sensor('iot/pir')
+    temp_sensor.start()
